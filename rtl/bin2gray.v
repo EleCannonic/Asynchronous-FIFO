@@ -13,6 +13,4 @@ module bin2gray #(
 
     assign gray = (bin >> 1) ^ bin;
 
-    
-    
 endmodule
