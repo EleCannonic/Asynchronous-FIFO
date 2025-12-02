@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module tp_ram #(
+module ram #(
     // fundamental parameters
     parameter DEPTH         = 16,
     parameter DATA_WIDTH    = 32,
@@ -13,16 +13,16 @@ module tp_ram #(
     input                   rst_n,            // low active, sync
 
     // write
-    input                   clk_wr,
-    input                   en_wr,
-    input  [ADDR_WIDTH-1:0] addr_wr,
-    input  [DATA_WIDTH-1:0] data_wr,
+    input                   wr_clk,
+    input                   wr_en,
+    input  [ADDR_WIDTH-1:0] wr_ptr,
+    input  [DATA_WIDTH-1:0] wr_data,
 
     // read
-    input                   clk_rd,
-    input                   en_rd,
-    input  [ADDR_WIDTH-1:0] addr_rd,
-    output [DATA_WIDTH-1:0] data_rd
+    input                   rd_clk,
+    input                   rd_en,
+    input  [ADDR_WIDTH-1:0] rd_ptr,
+    output [DATA_WIDTH-1:0] rd_data
 );
 
 
@@ -50,22 +50,22 @@ module tp_ram #(
     integer i;
 
     // asynchronous read wire
-    wire [DATA_WIDTH-1:0] data_rd_unreg;
+    wire [DATA_WIDTH-1:0] rd_data_unreg;
 
     // ==============================================================================
 
 
 
     // ============================ Write logic ============================
-    always @(posedge clk_wr)
-        if (en_wr) ram[addr_wr] <= data_wr;
+    always @(posedge wr_clk)
+        if (wr_en) ram[wr_ptr] <= wr_data;
     // ====================================================================
 
 
 
     // ============================ Read logic ============================
     // asynchronous read
-    assign data_rd_unreg = ram[addr_rd];
+    assign rd_data_unreg = ram[rd_ptr];
 
     // synchronous read pipeline (only when OUTPUT_REG > 0)
     generate
@@ -73,28 +73,28 @@ module tp_ram #(
         // pipeline registers for read (only when OUTPUT_REG > 0)
 
         if (OUTPUT_REG > 0) begin
-            reg [DATA_WIDTH-1:0] data_rd_regs [0:OUTPUT_REG-1];
+            reg [DATA_WIDTH-1:0] rd_data_regs [0:OUTPUT_REG-1];
 
-            always @(posedge clk_rd) 
+            always @(posedge rd_clk) 
             begin
                 if (~rst_n) begin
                     for (i = 0; i < OUTPUT_REG; i = i + 1)
-                        data_rd_regs[i] <= {DATA_WIDTH{1'b0}};
+                        rd_data_regs[i] <= {DATA_WIDTH{1'b0}};
                 end
                 
-                else if (en_rd) begin
-                    data_rd_regs[0] <= ram[addr_rd];  // first stage
+                else if (rd_en) begin
+                    rd_data_regs[0] <= ram[rd_ptr];  // first stage
 
                     for (i = 1; i < OUTPUT_REG; i = i + 1)
-                        data_rd_regs[i] <= data_rd_regs[i-1];  // subsequent stages
+                        rd_data_regs[i] <= rd_data_regs[i-1];  // subsequent stages
                 end
             end
 
             // output
-            assign data_rd = data_rd_regs[OUTPUT_REG-1];
+            assign rd_data = rd_data_regs[OUTPUT_REG-1];
         end
         else
-            assign data_rd = data_rd_unreg;
+            assign rd_data = rd_data_unreg;
     endgenerate
     // ======================================================================
 

@@ -2,13 +2,13 @@
 
 module sync #(
 
-    parameter ADDR_WIDTH = 8
+    parameter ADDR_WIDTH = 4
 
 ) (
 
     // target clock domain port
     input                    clk_trg,
-    input                    rst_trg_n,     // low active sync
+    input                    rst_n_trg,     // low active sync
 
     // data transfer path, gray code
     input  [ADDR_WIDTH-1:0] addr_src,
@@ -23,7 +23,7 @@ module sync #(
     // sync logic
     always @(posedge clk_trg)
     begin
-        if (~rst_trg_n) begin
+        if (~rst_n_trg) begin
             sync_reg1 <= {ADDR_WIDTH{1'b0}};
             sync_reg2 <= {ADDR_WIDTH{1'b0}};
         end

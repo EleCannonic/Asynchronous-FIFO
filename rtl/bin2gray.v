@@ -2,7 +2,7 @@
 
 module bin2gray #(
 
-    parameter WIDTH = 8
+    parameter WIDTH = 4
 
 )
 (
