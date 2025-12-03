@@ -3,24 +3,24 @@
 module tb;
 
     // =========================================================================
-    // Parameters (匹配您的 async_fifo 模块实例)
+    // Parameters 
     // =========================================================================
     parameter DEPTH         = 16;
     parameter DATA_WIDTH    = 32;
     parameter ADDR_WIDTH    = 4;
-    parameter OUTPUT_REG    = 1; // 匹配DUT中的OUTPUT_REG
+    parameter OUTPUT_REG    = 1; 
     parameter RAM_TYPE      = "block"; // block | distributed | register | ultra
     
-    // Clock periods (用于异步操作)
+    // Clock periods 
     parameter WR_CLK_PERIOD = 10; // 10 ns
     parameter RD_CLK_PERIOD = 12; // 12 ns
 
     // =========================================================================
-    // Signals Declaration (FIFO的输入是reg, 输出是wire)
+    // Signals Declaration (
     // =========================================================================
 
     // System
-    reg  rst_glb_n;  // global reset, 低电平有效
+    reg  rst_glb_n;  // global reset, low active
 
     // Write Port
     reg  wr_clk;
@@ -38,10 +38,10 @@ module tb;
     reg [DATA_WIDTH-1:0] expected_data;
     reg [ADDR_WIDTH-1:0] write_count;
     reg [ADDR_WIDTH-1:0] read_count;
-    // 简单的内存模型，用于存储写入数据以供读取时比对
+    // memory model for verification
     reg [DATA_WIDTH-1:0] mem_model [0:DEPTH-1]; 
     integer i;
-    // 存储最后一次有效读取的数据，用于检查空读时数据是否被保持
+    // last valid data for blocking
     reg [DATA_WIDTH-1:0] last_valid_rd_data; 
 
     // =========================================================================
@@ -211,8 +211,7 @@ module tb;
         last_valid_rd_data = expected_data; 
         read_count = read_count + 1;
 
-        // FIX: 关键修复：在最后一个有效读操作完成后，立即将 rd_en 拉低。
-        // 这发生在时钟沿之后，下一个时钟沿之前，从而阻止读指针的错误递增。
+        // pull down rd_en right after the last valid read (before the rising edge)
         rd_en = 1'b0; 
         $display("@ %t: Last valid data read. Dropping rd_en to prevent pointer increment on next clock.", $time);
         
