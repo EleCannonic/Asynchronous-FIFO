@@ -4,7 +4,7 @@ module flag #(
     
     parameter STATE      = 0,    // 0 for empty (R domain), 1 for full (W domain)
     parameter ADDR_WIDTH = 4
-
+    
 ) (
     
     input                   clk,     // clk_wr for full, clk_rd for empty
@@ -17,21 +17,20 @@ module flag #(
 
 );
 
+    // ================================== Parameters ==================================
+    localparam PTR_WIDTH = ADDR_WIDTH + 1; // 5 bits for 16 deep FIFO
+    
     // ================================== Signal declaration ==================================
     reg  [ADDR_WIDTH:0] ptr_rmt_r;
     
-    // ========================================================================================
-    
-    
     // ================================== Pointer Register Logic ==================================
     
+    // Register the synchronized remote pointer
     always @(posedge clk) 
     begin
-        if (~rst_n) ptr_rmt_r <= {(ADDR_WIDTH+1){1'b0}};
+        if (~rst_n) ptr_rmt_r <= {(PTR_WIDTH){1'b0}};
         else        ptr_rmt_r <= ptr_rmt;
     end
-    // ============================================================================================
-    
     
     // ================================== Flag generation ==================================
     
@@ -41,16 +40,19 @@ module flag #(
             flag <= 1'b0;
         else begin
             case (STATE)
-                0: flag <= (ptr_lc == ptr_rmt_r);                       // empty
-                1: flag <= (ptr_lc == {~ptr_rmt_r[ADDR_WIDTH],          // full
-                                       ~ptr_rmt_r[ADDR_WIDTH-1], 
-                                        ptr_rmt_r[ADDR_WIDTH-2:0]});
-
+                // EMPTY: Local pointer (R) equals registered remote pointer (W).
+                0: flag <= (ptr_lc == ptr_rmt_r);                       
+                
+                // FULL: MSB of local differs from remote (W[N] != R[N]), 
+                // Next MSB of local differs from remote (W[N-1] != R[N-1]), 
+                // and the remaining bits are the same.
+                1: flag <= (ptr_lc == {~ptr_rmt_r[PTR_WIDTH-1],       // Invert MSB (Bit 4)
+                                       ~ptr_rmt_r[PTR_WIDTH-2],       // Invert Next MSB (Bit 3)
+                                        ptr_rmt_r[PTR_WIDTH-3:0]});   // Remaining LSBs (Bits 2:0)
+                
                 default: $error("Invalid STATE value!");
             endcase
         end
     end
-    
-    // =====================================================================================
     
 endmodule
