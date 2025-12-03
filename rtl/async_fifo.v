@@ -1,3 +1,43 @@
+/* ===================================================================
+ *
+ *  Asynchronous FIFO
+ *  File: async_fifo.v
+ *  Author: [Your Name]
+ *
+ *  Description:
+ *  Configurable asynchronous FIFO with independent read/write clock domains.
+ *  Implements Gray code pointer synchronization for safe clock domain crossing.
+ *  Supports multiple memory types and output register pipeline stages.
+ *
+ *  Features:
+ *  - Independent read/write clock domains
+ *  - Configurable depth and data width
+ *  - Gray code pointer synchronization
+ *  - Multiple memory types (Block, Distributed, Register, Ultra)
+ *  - Output register pipeline (0-3 stages)
+ *  - Full/empty flags with proper synchronization
+ *
+ *  Parameters:
+ *  DEPTH: FIFO depth in entries (default: 16)
+ *  DATA_WIDTH: Data width in bits (default: 32)
+ *  ADDR_WIDTH: Address width = ceil(log2(DEPTH))
+ *  OUTPUT_REG: Output pipeline stages (0=combinational, default: 1)
+ *  RAM_TYPE: Memory implementation type ("block", "distributed", "register", "ultra")
+ *
+ *  Ports:
+ *  wr_clk: Write clock domain
+ *  wr_en: Write enable
+ *  wr_data: Write data
+ *  full_out: FIFO full flag
+ *  rd_clk: Read clock domain  
+ *  rd_en: Read enable
+ *  rd_data: Read data
+ *  empty_out: FIFO empty flag
+ *  rst_glb_n: Global asynchronous reset (active low)
+ *
+ =================================================================== */
+
+
 `timescale 1ns / 1ps
 
 module async_fifo #(
