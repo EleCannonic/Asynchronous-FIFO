@@ -25,9 +25,9 @@ module async_fifo #(
     input                   rd_clk,
     input                   rd_en,
     output [DATA_WIDTH-1:0] rd_data,
-    output                  empty_out,
+    output                  empty_out
 
-)
+);
 
     // ========================= Signal declaration =========================
 
@@ -42,7 +42,7 @@ module async_fifo #(
     wire                  full;
 
     // read port
-    wire                  rd_rst_n,
+    wire                  rd_rst_n;
     wire [ADDR_WIDTH-1:0] rd_ptr;
     wire [ADDR_WIDTH-1:0] rd_ptr_gray;
     wire [ADDR_WIDTH:0]   rd_ptr_ext;
@@ -82,14 +82,14 @@ module async_fifo #(
     // ========================== Pointer bin2gray ==========================
 
     bin2gray #(
-        .ADDR_WIDTH (ADDR_WIDTH)
+        .WIDTH      (ADDR_WIDTH)
     ) u_bin2gray_wr(
         .bin        (wr_ptr),
         .gray       (wr_ptr_gray)
     );
 
     bin2gray #(
-        .ADDR_WIDTH (ADDR_WIDTH)
+        .WIDTH      (ADDR_WIDTH)
     ) u_bin2gray_rd(
         .bin        (rd_ptr),
         .gray       (rd_ptr_gray)
@@ -139,14 +139,14 @@ module async_fifo #(
     // =========================== Full generation ===========================
     
     bin2gray #(
-        .ADDR_WIDTH (ADDR_WIDTH+1)
+        .WIDTH      (ADDR_WIDTH+1)
     ) u_bin2gray_full(
         .bin        (rd_ptr_ext),
         .gray       (rd_ptr_ext_gray)
     );
 
     sync #(
-        .ADDR_WIDTH (ADDR_WIDTH)
+        .ADDR_WIDTH (ADDR_WIDTH+1)
     ) u_sync_full (
         .clk_trg    (wr_clk),
         .rst_n_trg  (wr_rst_n),
@@ -160,7 +160,7 @@ module async_fifo #(
     ) u_flag_full (
         .clk        (wr_clk),
         .rst_n      (wr_rst_n),
-        .ptr_lc     (wr_ptr_gray),
+        .ptr_lc     (wr_ptr_ext_gray),
         .ptr_rmt    (rd_ptr_gray_sync),
         .flag       (full)
     );
@@ -175,14 +175,14 @@ module async_fifo #(
     // =========================== Empty generation ===========================
 
     bin2gray #(
-        .ADDR_WIDTH (ADDR_WIDTH+1)
+        .WIDTH      (ADDR_WIDTH+1)
     ) u_bin2gray_empty(
         .bin        (wr_ptr_ext),
         .gray       (wr_ptr_ext_gray)
     );
 
     sync #(
-        .ADDR_WIDTH (ADDR_WIDTH)
+        .ADDR_WIDTH (ADDR_WIDTH+1)
     ) u_sync_empty (
         .clk_trg    (rd_clk),
         .rst_n_trg  (rd_rst_n),
@@ -196,7 +196,7 @@ module async_fifo #(
     ) u_flag_empty (
         .clk        (rd_clk),
         .rst_n      (rd_rst_n),
-        .ptr_lc     (rd_ptr_gray),
+        .ptr_lc     (rd_ptr_ext_gray),
         .ptr_rmt    (wr_ptr_gray_sync),
         .flag       (empty)
     );

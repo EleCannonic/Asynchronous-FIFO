@@ -10,8 +10,8 @@ module flag #(
     input                   clk,     // clk_wr for full, clk_rd for empty
     input                   rst_n,   // low active sync
 
-    input  [ADDR_WIDTH:0]   ptr_lc,   // local Gray pointer
-    input  [ADDR_WIDTH:0]   ptr_rmt,  // sync_ed remote Gray pointer
+    input  [ADDR_WIDTH:0]   ptr_lc,   // local Gray pointer, extended
+    input  [ADDR_WIDTH:0]   ptr_rmt,  // sync_ed remote Gray pointer, extended
 
     output reg              flag
 
@@ -27,12 +27,8 @@ module flag #(
     
     always @(posedge clk) 
     begin
-        if (~rst_n) begin
-            ptr_rmt_r <= {(ADDR_WIDTH+1){1'b0}};
-        end
-        else begin
-            ptr_rmt_r <= ptr_rmt;
-        end
+        if (~rst_n) ptr_rmt_r <= {(ADDR_WIDTH+1){1'b0}};
+        else        ptr_rmt_r <= ptr_rmt;
     end
     // ============================================================================================
     
@@ -45,9 +41,10 @@ module flag #(
             flag <= 1'b0;
         else begin
             case (STATE)
-                0: flag <= (ptr_lc == ptr_rmt_r);
-                1: flag <= (ptr_lc == {~ptr_rmt_r[ADDR_WIDTH], 
-                                                ptr_rmt_r[ADDR_WIDTH-1:0]});
+                0: flag <= (ptr_lc == ptr_rmt_r);                       // empty
+                1: flag <= (ptr_lc == {~ptr_rmt_r[ADDR_WIDTH],          // full
+                                       ~ptr_rmt_r[ADDR_WIDTH-1], 
+                                        ptr_rmt_r[ADDR_WIDTH-2:0]});
 
                 default: $error("Invalid STATE value!");
             endcase

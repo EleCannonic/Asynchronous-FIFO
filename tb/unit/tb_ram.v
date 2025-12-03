@@ -21,17 +21,17 @@ module tb_ram;
     integer i;
 
     // ====================== Instantiate clocks & reset ======================
-    clk_gen #(.PERIOD(10)) i_clk_gen_wr (.clk(clk_wr));
-    clk_gen #(.PERIOD(14)) i_clk_gen_rd (.clk(clk_rd));
-    rst_gen                i_rst_gen    (.rst_n(rst_n));
+    clk_gen #(.PERIOD(10)) u_clk_gen_wr (.clk(clk_wr));
+    clk_gen #(.PERIOD(14)) u_clk_gen_rd (.clk(clk_rd));
+    rst_gen                u_rst_gen    (.rst_n(rst_n));
 
     // ====================== Instantiate RAM ======================
-    tp_ram #(
+    ram #(
         .DEPTH          (DEPTH),
         .DATA_WIDTH     (DATA_WIDTH),
         .OUTPUT_REG     (OUTPUT_REG),
         .RAM_TYPE       (RAM_TYPE)
-    ) i_tp_ram (
+    ) u_ram (
         .rst_n          (rst_n),
         .clk_wr         (clk_wr),
         .en_wr          (en_wr),

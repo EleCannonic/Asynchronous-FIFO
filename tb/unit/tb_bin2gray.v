@@ -15,7 +15,7 @@ module tb_bin2gray;
     // ====================== Instantiate DUT ======================
     bin2gray #(
         .WIDTH (WIDTH)
-    ) i_bin2gray (
+    ) u_bin2gray (
         .bin   (bin_in),
         .gray  (gray_out)
     );

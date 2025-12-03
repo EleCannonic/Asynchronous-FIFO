@@ -19,7 +19,7 @@ module tb_flag;
     flag #(
         .STATE     (0),
         .ADDR_WIDTH(ADDR_WIDTH)
-    ) i_flag_empty (
+    ) u_flag_empty (
         .clk     (clk),
         .rst_n   (rst_n),
         .addr_rd (addr_rd),
@@ -30,7 +30,7 @@ module tb_flag;
     flag #(
         .STATE     (1),
         .ADDR_WIDTH(ADDR_WIDTH)
-    ) i_flag_full (
+    ) u_flag_full (
         .clk     (clk),
         .rst_n   (rst_n),
         .addr_rd (addr_rd),
