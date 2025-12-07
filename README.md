@@ -29,7 +29,7 @@ async_fifo (top)
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `DEPTH` | integer | 16 | FIFO depth (number of entries) |
+| `DEPTH` | integer | 16 | FIFO depth (number of entries, must be $2^N$) |
 | `DATA_WIDTH` | integer | 32 | Data width in bits |
 | `ADDR_WIDTH` | integer | 4 | Address width (Recommand `$clog2(DEPTH)$`) |
 | `OUTPUT_REG` | integer | 1 | Number of output pipeline registers (0 for combinational output) |
